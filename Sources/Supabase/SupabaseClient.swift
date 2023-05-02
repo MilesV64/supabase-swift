@@ -45,7 +45,8 @@ public class SupabaseClient {
   public var realtime: RealtimeClient {
     RealtimeClient(
       endPoint: realtimeURL.absoluteString,
-      params: defaultHeaders
+      params: defaultHeaders,
+      authAdapter: self
     )
   }
 
@@ -139,5 +140,11 @@ extension SupabaseClient: StorageHTTPClient {
   ) async throws -> (Data, HTTPURLResponse) {
     let request = await adapt(request: request)
     return try await httpClient.storage.upload(request, from: data)
+  }
+}
+
+extension SupabaseClient: RealtimeAuthAdapter {
+  public func getAccessTokenForRealtimePayload() async throws -> String {
+    return try await auth.session.accessToken
   }
 }
